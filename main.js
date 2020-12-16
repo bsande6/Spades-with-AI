@@ -11,15 +11,15 @@ main = function() {
     deck.shuffle();
     window.addEventListener('click', function(event) {
         var mousePos = screen.getMousePos(event);
-        console.log(mousePos)
-        console.log(mousePos.x)
     
         if (screen.isInside(mousePos)) {
-           deck.dealCards(playerList)
+           deck.dealCards(playerList);
+           screen.displayHand(playerList);
         }else{
             alert('clicked outside rect');
         }   
     }, false);
+    
     
    
 }

@@ -22,11 +22,9 @@ class Deck {
       this.cards[j] = temp
     }
   }
-  deal_cards(players) {
-    console.log(players)
-    console.log(this.cards.pop())
+  dealCards(players) {
     while (this.cards.length > 0) {
-        for (var i in players.length) {
+        for (var i = 0; i < players.length; i++) {
           players[i].get_hand().add_card(this.cards.pop());
         }
     }

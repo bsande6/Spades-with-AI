@@ -28,8 +28,6 @@ class GameScreen {
     }
 
     isInside(pos){
-        console.log(pos)
-        console.log(pos.x)
         console.log(this.rect.x)
         return pos.x > this.rect.x && pos.x < this.rect.x+this.rect.width && pos.y < this.rect.y+
         this.rect.height && pos.y > this.rect.y
