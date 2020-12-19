@@ -11,21 +11,22 @@ class Deck {
   }
 
   shuffle() {
-    var i = 0,
-    j = 0,
+    var j = 0,
     temp = null
-    
-    for (i = this.cards[i].length- 1; i > 0; i -= 1) {
+    console.log(this.cards.length)
+    for (var i = this.cards.length- 1; i > 0; i -= 1) {
+      console.log('a')
       j = Math.floor(Math.random() * (i + 1))
-      temp = array[i]
-      this.cards[i] = cards[j]
+      temp = this.cards[i]
+      this.cards[i] = this.cards[j]
       this.cards[j] = temp
     }
+    console.log(this.cards)
   }
   dealCards(players) {
     while (this.cards.length > 0) {
         for (var i = 0; i < players.length; i++) {
-          players[i].get_hand().add_card(this.cards.pop());
+          players[i].addCard(this.cards.pop());
         }
     }
   }
