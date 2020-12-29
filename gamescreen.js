@@ -14,7 +14,8 @@ class GameScreen {
             self.ctx.fillStyle = "black"
             self.ctx.font = "bold 20pt arial";
             self.ctx.textAlign = 'center';
-            self.ctx.fillText("Deal Cards", self.canvas.width/2-20, self.canvas.height/2);
+            self.ctx.fillText("Deal", self.canvas.width/2-20, self.canvas.height/2);
+            self.ctx.fillText("Cards", self.canvas.width/2-20, self.canvas.height/2+25)
             
           }, false);
         
@@ -40,9 +41,9 @@ class GameScreen {
         };
     }
 
-    isInside(pos){
-        return pos.x > this.rect.x && pos.x < this.rect.x+this.rect.width && pos.y < this.rect.y+
-        this.rect.height && pos.y > this.rect.y
+    isInside(pos, rect){
+        return pos.x > rect.x && pos.x < rect.x+rect.width && pos.y < rect.y+
+        rect.height && pos.y > rect.y
     }
 
     displayHand(player) {
@@ -50,20 +51,16 @@ class GameScreen {
         var hand = player.getHand();
         var index;
         var card_num = 0;
-        console.log(hand)
         for (var card in hand) {
-            index = this.determineImage(hand[card]);
-            console.log(index)
-            this.ctx.drawImage(this.images[index], window.innerWidth/2 + card_num*20, window.innerHeight -140, 100, 140);
+            var img = this.determineImage(hand[card]);
+            this.ctx.drawImage(img, window.innerWidth/2 + (card_num-7)*20, window.innerHeight -140, 100, 140);
             card_num++;  
         }
     }
 
     determineImage(card) {
-        console.log(card)
         var suit = card.getSuit();
         var value = card.getValue();
-        console.log(value)
         
         // converts the suit and value to the form needed to identiy the associated image
         switch (value) {
@@ -84,8 +81,10 @@ class GameScreen {
                 break;
             case "SEVEN":
                 value = '7';
+                break;
             case "EIGHT":
-                value = '8';       
+                value = '8';    
+                break;   
             case "NINE":
                 value = '9';
                 break;
@@ -119,9 +118,8 @@ class GameScreen {
                 suit = 'S';
                 break;
         }
-        console.log(this.images_src)
-        console.log(suit)
-        return this.images_src.indexOf(value + suit)
+        var index = this.images_src.indexOf(value + suit)
+        return this.images[index];
         
     }
 
@@ -157,7 +155,13 @@ class GameScreen {
 			images[i] = new Image()
 			images[i].src = 'images/' + this.images_src[i] + '.png'
         }
-        console.log(images)
         return images;
+    }
+
+    removeImage(xpos, ypos, width, height) {
+        this.ctx.clearRect(xpos,ypos, width, height)
+    }
+    playCard(card, pos) {
+        this.ctx.drawImage(this.determineImage(card),pos.x, pos.y, card.width, card.height)
     }
 }

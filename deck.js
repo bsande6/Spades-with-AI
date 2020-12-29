@@ -13,15 +13,12 @@ class Deck {
   shuffle() {
     var j = 0,
     temp = null
-    console.log(this.cards.length)
     for (var i = this.cards.length- 1; i > 0; i -= 1) {
-      console.log('a')
       j = Math.floor(Math.random() * (i + 1))
       temp = this.cards[i]
       this.cards[i] = this.cards[j]
       this.cards[j] = temp
     }
-    console.log(this.cards)
   }
   dealCards(players) {
     while (this.cards.length > 0) {

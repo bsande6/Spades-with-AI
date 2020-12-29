@@ -2,6 +2,8 @@ class Card {
     constructor(value, suit) {
         this.value = value;
         this.suit = suit;
+        this.height = 140;
+        this.width = 100;
         this.sort_pos = this.setSortPosition();
     }
     getSuit() {
@@ -66,8 +68,6 @@ class Card {
                 val_pos = 12;
                 break;
         }
-        console.log(val_pos);
-        console.log(suit_pos)
         return (val_pos + suit_pos);
     }
     getSortPos() {
