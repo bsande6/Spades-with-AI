@@ -1,14 +1,18 @@
 class Hand {
-    constructor () {
+    constructor (xpos, ypos) {
         this.hand = new Array();
+        this.play_pos = {
+            x: xpos,
+            y: ypos
+        };
     }
 
     addCard(c) {
         this.hand.push(c);
     }
 
-    removeCard () {
-        
+    removeCard(c) {
+        this.hand.pop(c)
     }
     getHand() {
         return this.hand;
@@ -58,5 +62,55 @@ class Hand {
         var temp = arr[i];
         arr[i] = arr[j];
         arr[j] = temp
+    }
+    getPlayableCards(board) {
+        var suit = board.getRequiredSuit();
+        var contains = this.hand.filter(function(obj) {
+            return obj.suit == suit;
+        })
+       
+        if (contains.length > 0) {
+            return contains;
+        }
+        else {
+            return this.hand
+        }
+    }
+
+    findNextMove(board, playerNo) {
+        // define an end time which will act as a terminating condition
+        var simulations = 50;
+        var opponent = playerNo;
+        cards = 
+        board.setRemainingCards(cards)
+        var rootNode = new Node(null, board, board.getLastPlay(), this.getPlayableCards(board), playerNo);
+        rootNode.state.setBoard(board);
+        //var rootNode = tree.getRoot();
+        //rootNode.getState().setBoard(board);
+        //rootNode.getState().setPlayerNo(opponent);
+
+        //rootNode.setChildArray(this.getPlayableCards(board));
+        var treeSearch = new MonteCarloTreeSearch();
+        
+
+        var i = 0;
+        while (i < simulations) {
+            var promisingNode = treeSearch.selectPromisingNode(rootNode);
+            //if (promisingNode.getState().getBoard().checkStatus() 
+              //== Board.IN_PROGRESS) {
+            treeSearch.expandNode(promisingNode, rootNode);
+            //}
+            var nodeToExplore = promisingNode;
+            if (promisingNode.getChildArray().length > 0) {
+                nodeToExplore = promisingNode.getRandomChildNode();
+            }
+            var playoutResult = treeSearch.simulateRandomPlayout(nodeToExplore, rootNode);
+            backPropogation(nodeToExplore, playoutResult);
+            i++;
+        }
+
+        var  winnerNode = rootNode.getChildWithMaxScore();
+        tree.setRoot(winnerNode);
+        return winnerNode.getState().getBoard();
     }
 }
