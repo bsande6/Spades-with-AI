@@ -4,6 +4,7 @@ class Card {
         this.suit = suit;
         this.height = 140;
         this.width = 100;
+        this.player;
         this.sort_pos = this.setSortPosition();
     }
     getSuit() {
@@ -47,8 +48,10 @@ class Card {
                 break;
             case "SEVEN":
                 val_pos = 5;
+                break;
             case "EIGHT":
-                val_pos = 6;       
+                val_pos = 6;  
+                break;     
             case "NINE":
                 val_pos = 7;
                 break;

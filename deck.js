@@ -23,7 +23,9 @@ class Deck {
   dealCards(players) {
     while (this.cards.length > 0) {
         for (var i = 0; i < players.length; i++) {
-          players[i].addCard(this.cards.pop());
+          var card = this.cards.pop()
+          players[i].addCard(card);
+          card.player = i;
         }
     }
   }

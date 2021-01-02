@@ -2,7 +2,7 @@
 class GameBoard {
     constructor() {
         this.board = [];
-        this.remainingCards = new Deck();
+        this.remainingCards;
         this.lastPlay;
     }
     setBoard(board) {
@@ -14,9 +14,13 @@ class GameBoard {
     addCard(card) {
         this.board.push(card)
         this.lastPlay = card;
+        ///var element = this.remainingCards.find(element => element.sort_pos == card.sort_pos);
+        //this.remainingCards.splice(this.remainingCards.indexOf(element), 1)
     }
+    
     clearBoard() {
-        for (var i = 0; i < this.board.length; i++) {
+        var length = this.board.length;
+        for (var i = 0; i < length; i++) {
             this.board.pop()
         }
     }
@@ -36,12 +40,14 @@ class GameBoard {
     }
     trickWinner() {
         // initialize winner to first play
+       
         var winner = this.board[0];
         var startingSuit = this.board[0].suit;
-        for (var i =0; i < this.board.length; i++) {
+        for (var i = 1; i < this.board.length; i++) {
             // case one same suit 
             if (this.board[i].suit == startingSuit) {
-                if (this.board[i].value >= winner.value) {
+                if (this.board[i].sort_pos >= winner.sort_pos) {
+                    
                     winner = this.board[i];
                 }
             }
@@ -52,6 +58,6 @@ class GameBoard {
                 }
             }
         }
-        return this.board 
+        return winner 
     }
 }

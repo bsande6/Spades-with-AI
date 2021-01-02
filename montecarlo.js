@@ -1,12 +1,14 @@
 
 class Node {
-    constructor(parent, board, play, unexpandedMoves, playerNo) {
+    constructor(parent, board, play, unexpandedMoves, playerNo, remainingCards) {
         this.play = play;
         //this.board = board;
-        
         this.state = new State();
-        this.state.setBoard(board)
+        this.state.setState(board)
         
+        this.state.board.setRemainingCards(remainingCards)
+      
+        this.inc = 0;
         this.parent = parent;
         this.player = playerNo;
         this.unexpandedMoves = unexpandedMoves; 
@@ -14,16 +16,19 @@ class Node {
         // sets up the tree
         this.children = new Map();
         var count = 0;
-        
-        for (let move of this.unexpandedMoves) {
-            console.log(unexpandedMoves)
-            
-            var node = new Node(this, this.state.board , move, [], (playerNo + 1) % 4);
-            console.log(node)
+        if (this.state.board.length == 0) {
+            playerNo = playerNo -1;
+        }
+
+        for (let move of this.unexpandedMoves) {  
+           
+            var node = new Node(this, this.state.board , move, [], (playerNo + 1) % 4, this.state.board.remainingCards)
             node.state.board.addCard(move);
             this.children.set(count, { move: move, node: node})
             count++;
         }
+
+       
         this.visits = 0;
         this.wins = 0;
         this.remainingPlays;
@@ -34,8 +39,10 @@ class Node {
     getChildArray() {
         return this.children;
     }
-    addChildren(childList) {
-        this.children = childList;
+    addChildren(child) {          
+        this.children.set(this.inc, {move: child.move, node: child})
+        
+        this.inc++;
     }
     isLeaf() {
         if (this.children == null) {
@@ -44,6 +51,7 @@ class Node {
         return false;
     }
     isFullyExpanded() {
+        
         for (let child of this.children.values()) {
             if (child === null) {
                 return false
@@ -55,17 +63,32 @@ class Node {
     getAllLegalPlays(root) {
         var plays;
         if (this.player == root.player) {
+          
             plays = this.unexpandedMoves
         }
         else {
-            console.log(this.state.board)
+            
             plays = this.state.board.remainingCards;
+          
         }
         
         return plays;
         // constructs a list of all possible states from current state
     }
-    
+    getChildWithMaxScore() {
+        let bestPlay;
+        let max = -Infinity
+       
+        for (let child of this.children.values()) {
+            
+            if (child.node.visits > max) {
+                bestPlay = child.move
+                max = child.node.visits
+                
+           }
+        }
+        return bestPlay
+    }
     // setters and getters
 }
 
@@ -80,16 +103,23 @@ class Tree {
 
 class State {
     constructor() {
-        this.board = new GameBoard();
+        this.board;
         //this.playerNo;
         var visitCount;
         this.winner = null
         this.winScore;
     }
-    setBoard(board) {
-        this.board.setRemainingCards(board.remainingCards);
+    setState(board) {
+      
+        this.board = _.cloneDeep(board)
+        /*console.log(JSON.stringify(board.remainingCards));
+        this.board.
+        Object.assign
         this.board.setBoard(board.board)
+        this.board.addCard("as")
+        console.log(this.board)
         this.board.setLastPlay(board.setLastPlay)
+        console.log(JSON.stringify(board));*/
       
     }
     setPlayerNo(playerNo) {
@@ -124,36 +154,82 @@ class MonteCarloTreeSearch {
     selectPromisingNode(rootNode) {
         var node = rootNode;
         var uct = new UCT()
-        
+      
         while (node.isFullyExpanded() && !node.isLeaf()) {
             node = uct.findBestNodeWithUCT(node);
+            
         }
         return node;
     }
     expandNode(node, root) {
+        
         var possibleStates = node.getAllLegalPlays(root);
-        console.log(possibleStates)
-        for (var state in possibleStates) {
-            console.log('a')
-            var newNode = new Node(node, node.state, state, [], (node.player +1) %4);
+       
+        for (var state of possibleStates) {
+            
+            var newNode = new Node(node, node.state.board, state, [], (node.player +1) %4, node.state.board.remainingCards);
             //newNode.setParent(node);
             //newNode.getState().setPlayerNo(node.getState().getOpponent());
-            console.log(node)
+           
             node.addChildren(newNode);
         }
     }
-    simulateRandomPlayout(node, rootNode) {
+    simulateRandomPlayout(node, rootNode, hand) {
+        //node.state.board.addCard(node.play)
+        var simHand = _.cloneDeep(hand)
+        simHand.removeCard(node.play)
+        //var simHand = playableCards;
+        var tricksWon = 0;
+        let plays = _.cloneDeep(node.getAllLegalPlays(rootNode));
+       
+        console.log(node)
+        var turn = node.player;
+        console.log(turn)
+        var currentPlayerPlays;
+        
         // simulates a random game and records the number of tricks won
-        while(node.state.winner == null) {
+        while(plays.length > 0 || simHand.getHand().length > 0) {
             
-            let plays = node.getAllLegalPlays(rootNode);
+            var play;
+            if (turn % 4 == rootNode.player) {
+                currentPlayerPlays = simHand.getPlayableCards(node.state.board);
+                play = currentPlayerPlays[Math.floor(Math.random() * currentPlayerPlays.length)];
+                simHand.getHand().splice(simHand.getHand().indexOf(play), 1)
+            } 
+            else {   
+                play = plays[Math.floor(Math.random() * plays.length)]
+                plays.splice(plays.indexOf(play), 1)
+                
+            } 
+            play.player = turn
+            node.state.board.addCard(play)
+            turn++;
+           
             
-            let play = plays[Math.floor(Math.random() * plays.length)]
-            state = this.game.nextState(state, play)
-            winner = this.game.winner(state)
-            if (this.state.board.length == 4) {
-                this.state.board.trickWinner();
+            if (node.state.board.board.length == 4) {
+                var winner = node.state.board.trickWinner();
+                node.state.board.clearBoard();
+                if (isNaN(winner.player)) {
+                    winner.player = node.state.board.board.indexOf(winner)
+                }
+                if (winner.player == rootNode.player) {
+                    tricksWon = tricksWon + 1;
+                   
+                }
+                turn = winner.player
             }
+            turn = turn % 4
+           
+        }
+        return tricksWon;
+    }
+
+    backPropogation(node, wins) {
+        while (node != null) {
+           
+            node.visits += 13
+            node.wins += wins
+            node = node.parent
         }
     }
 }
@@ -164,25 +240,31 @@ class UCT {
 
     uctValue(node) {
         if (node.visits == 0) {
+           
             return Number.MAX_SAFE_INTEGER;
         }
+        
+    
         return ((node.wins / node.visits) 
-              + 1.41 * Math.sqrt(Math.log(node.parent.visits) / node.visit));
+              + 1.41 * Math.sqrt(Math.log(node.parent.visits) / node.visits));
     }
     
     findBestNodeWithUCT(node) {
         var plays = node.getChildArray().values();
-      
+       
         var bestPlay;
         var bestUCB1 = -Infinity
         for (var play of plays) {
-        
+            
             var ucb1 = this.uctValue(play.node);
+            
             if (ucb1 > bestUCB1) {
+                
                bestPlay = play.node;
                bestUCB1 = ucb1;
            }
         }
+        
         return bestPlay;
     }
     comparator(a, b) {

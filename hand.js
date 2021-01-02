@@ -1,10 +1,12 @@
 class Hand {
-    constructor (xpos, ypos) {
-        this.hand = new Array();
+    constructor (xpos, ypos, rotation) {
+        this.hand = [];
         this.play_pos = {
             x: xpos,
             y: ypos
         };
+        this.rotation = rotation
+        this.tricksWon = 0;
     }
 
     addCard(c) {
@@ -79,12 +81,30 @@ class Hand {
 
     findNextMove(board, playerNo) {
         // define an end time which will act as a terminating condition
+        
         var simulations = 50;
         var opponent = playerNo;
-        cards = 
-        board.setRemainingCards(cards)
-        var rootNode = new Node(null, board, board.getLastPlay(), this.getPlayableCards(board), playerNo);
-        rootNode.state.setBoard(board);
+        var cards = this.hand
+        //var remainingCards = board.remainingCards
+        var remainingCards = _.cloneDeep(board.remainingCards)
+       
+      // removes the cards in players hand and on board from remaininCards
+        for (var card of cards) {
+            var element = remainingCards.find(element => element.sort_pos == card.sort_pos);
+            if (element) {
+                remainingCards.splice(remainingCards.indexOf(element), 1)
+            }
+           
+        }
+        
+      
+     
+        var rootNode = new Node(null, board, board.getLastPlay(), this.getPlayableCards(board), playerNo, remainingCards);
+       
+       // rootNode.state.board.setBoard(board, remainingCards);
+        //rootNode.state.board.setRemainingCards(remainingCards)
+ 
+        
         //var rootNode = tree.getRoot();
         //rootNode.getState().setBoard(board);
         //rootNode.getState().setPlayerNo(opponent);
@@ -95,22 +115,29 @@ class Hand {
 
         var i = 0;
         while (i < simulations) {
+           
             var promisingNode = treeSearch.selectPromisingNode(rootNode);
+            console.log(node)
             //if (promisingNode.getState().getBoard().checkStatus() 
               //== Board.IN_PROGRESS) {
+            
             treeSearch.expandNode(promisingNode, rootNode);
             //}
             var nodeToExplore = promisingNode;
             if (promisingNode.getChildArray().length > 0) {
                 nodeToExplore = promisingNode.getRandomChildNode();
             }
-            var playoutResult = treeSearch.simulateRandomPlayout(nodeToExplore, rootNode);
-            backPropogation(nodeToExplore, playoutResult);
+            
+            var playoutResult = treeSearch.simulateRandomPlayout(nodeToExplore, rootNode, this);
+            treeSearch.backPropogation(nodeToExplore, playoutResult);
             i++;
         }
 
-        var  winnerNode = rootNode.getChildWithMaxScore();
-        tree.setRoot(winnerNode);
-        return winnerNode.getState().getBoard();
+        var winner = rootNode.getChildWithMaxScore();
+     
+        return winner;
+    }
+    incrementTricksWon() {
+        this.tricksWon++;
     }
 }

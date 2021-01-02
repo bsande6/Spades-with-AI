@@ -161,7 +161,19 @@ class GameScreen {
     removeImage(xpos, ypos, width, height) {
         this.ctx.clearRect(xpos,ypos, width, height)
     }
-    playCard(card, pos) {
-        this.ctx.drawImage(this.determineImage(card),pos.x, pos.y, card.width, card.height)
+    playCard(card, pos, angle) {
+        var img = this.determineImage(card)
+        console.log(angle)
+        this.ctx.save()
+        this.ctx.translate(pos.x + card.width/2, pos.y + card.height/2)
+        this.ctx.rotate(angle)
+        this.ctx.translate(-pos.x - card.width/2, -pos.y - card.height/2)
+        console.log(img)
+        console.log(img.complete)
+        console.log(this.image.complete)
+        this.ctx.drawImage(img, pos.x, pos.y, card.width, card.height)
+        this.ctx.restore();
+        
     }
 }
+ 
