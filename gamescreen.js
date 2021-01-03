@@ -49,13 +49,29 @@ class GameScreen {
     displayHand(player) {
         // loops through players hand and call function to find associated image for the cards
         var hand = player.getHand();
+        console.log('yy')
         var index;
         var card_num = 0;
         for (var card in hand) {
             var img = this.determineImage(hand[card]);
-            this.ctx.drawImage(img, window.innerWidth/2 + (card_num-7)*20, window.innerHeight -140, 100, 140);
+            this.ctx.drawImage(img, window.innerWidth/2 + (card_num-hand.length/2)*20, window.innerHeight -140, 100, 140);
             card_num++;  
         }
+    }
+    clearHand(player) {
+        var hand = player.getHand();
+        var card_num = 0;
+        var hand_width = hand[0].width*(hand.length+1)-(20*hand.length)
+        for (var card in hand) {
+            var img = this.determineImage(hand[card]);
+            console.log('asf')
+            // 1 is added to hand length to account for removed card
+            this.removeImage(window.innerWidth/2 + (0-(hand.length+1)/2)*20, window.innerHeight - 140, hand_width, 140);
+            //this.removeImage(window.innerWidth/2 + (0-7)*20, window.innerHeight - 140, 20, 140);
+            card_num++;  
+
+        }
+        
     }
 
     determineImage(card) {
@@ -159,6 +175,7 @@ class GameScreen {
     }
 
     removeImage(xpos, ypos, width, height) {
+        console.log('x')
         this.ctx.clearRect(xpos,ypos, width, height)
     }
     playCard(card, pos, angle) {

@@ -14,7 +14,9 @@ class Hand {
     }
 
     removeCard(c) {
-        this.hand.pop(c)
+        console.log(c)
+        this.hand.splice(this.hand.indexOf(c),1)
+        console.log(this.hand)
     }
     getHand() {
         return this.hand;
@@ -81,23 +83,21 @@ class Hand {
 
     findNextMove(board, playerNo) {
         // define an end time which will act as a terminating condition
-        
-        var simulations = 50;
-        var opponent = playerNo;
+        console.log(board)
+        var simulations = 100;
         var cards = this.hand
         //var remainingCards = board.remainingCards
         var remainingCards = _.cloneDeep(board.remainingCards)
-       
-      // removes the cards in players hand and on board from remaininCards
+        console.log(cards)
+        // removes the cards in players hand and on board from remaininCards
         for (var card of cards) {
             var element = remainingCards.find(element => element.sort_pos == card.sort_pos);
             if (element) {
                 remainingCards.splice(remainingCards.indexOf(element), 1)
             }
-           
         }
         
-      
+        console.log(remainingCards)
      
         var rootNode = new Node(null, board, board.getLastPlay(), this.getPlayableCards(board), playerNo, remainingCards);
        
@@ -115,9 +115,9 @@ class Hand {
 
         var i = 0;
         while (i < simulations) {
-           
+            
             var promisingNode = treeSearch.selectPromisingNode(rootNode);
-            console.log(node)
+            console.log(promisingNode, i)
             //if (promisingNode.getState().getBoard().checkStatus() 
               //== Board.IN_PROGRESS) {
             

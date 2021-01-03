@@ -1,3 +1,4 @@
+const CARD_WIDTH = 100;
 class Card {
     constructor(value, suit) {
         this.value = value;

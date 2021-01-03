@@ -46,28 +46,66 @@ main = function() {
     window.addEventListener('click', onclick, false);
    
     function gameloop(turn) {
+        // ensures it will always be a correct turn for the number of players
+        turn = turn % handsList.length
         var playerTurn = handsList[turn];
        // for (var round = 0; round <= 13; round++) {
         function choosecard(event) {
             var mousePos = screen.getMousePos(event);
-            var card0 = {
-                x: window.innerWidth/2 + (0-7)*20,
-                y: window.innerHeight - 140,
-                width: 20,
-                height: 140
-            };
-            if (screen.isInside(mousePos, card0)) {
-                gameBoard.addCard(h1.hand[0])
-                screen.playCard(h1.getHand()[0], h1.play_pos, 0);
+            // array to keep track of where each card is positioned on screen
+            var cards = [];
+            for (var i=0; i<h1.hand.length; i++) {
+                var card = {
+                    x: window.innerWidth/2 + (i-(h1.hand.length/2))*20,
+                    y: window.innerHeight - 140,
+                    width: 20,
+                    height: 140
+                };
+                cards.push(card)
+              //  var card1 = {
+                //    x: window.innerWidth/2 + (1-(h1.hand.length/2))*20,
+                  //  y: window.innerHeight - 140,
+                    //width: 20,
+                    //height: 140
+                //};
+            
+            }
+            console.log(cards[0])
+            
+            function getSelectedCard(mousePos, cards) {
+                
+                for (var i = 0; i < cards.length; i++) {
+                    console.log(mousePos, cards[i])
+                    if (screen.isInside(mousePos, cards[i])) {
+                        if (h1.getPlayableCards(gameBoard).includes(h1.hand[i])) {
+                            return h1.hand[i];
+                        }
+                        else {
+                            alert("Illegal Play")
+                        }
+                    }
+                }
+                return null;
+            }
+            var card = getSelectedCard(mousePos, cards)
+            if (card) {
+                gameBoard.addCard(card)
+                screen.playCard(card, h1.play_pos, 0);
                          
-                var element = gameBoard.remainingCards.find(element => element.sort_pos == h1.hand[0].sort_pos);
+                var element = gameBoard.remainingCards.find(element => element.sort_pos == card.sort_pos);
                 var remainingCards = gameBoard.remainingCards;
                 
                 remainingCards.splice(remainingCards.indexOf(element), 1)
                 gameBoard.setRemainingCards(remainingCards)
-                screen.removeImage(window.innerWidth/2 + (0-7)*20, window.innerHeight - 140, 20, 140)
+                console.log('a')
+                setTimeout(function() {
+                    screen.clearHand(h1)
+                    screen.displayHand(h1)
+                }, 10);
+                
+                //screen.removeImage(window.innerWidth/2 + (0-h1.hand.length/2))*20, window.innerHeight - 140, 20, 140)
                 window.removeEventListener('click', choosecard, false)
-                h1.removeCard(h1.hand[0]);
+                h1.removeCard(card);
                 
                 if (gameBoard.board.length == 4) {
                     turn = resetBoard();
@@ -78,21 +116,23 @@ main = function() {
                 setTimeout(function() {
                     gameloop(turn)
                 }, 2000)
-               
             }
-         }
-            // checks for human turn
-            
+        }
+           
+         
+            // checks for human turn  
         if (playerTurn == h1) {        
             window.addEventListener('click', choosecard, false);    
         }
         else {
-            var bestCard = playerTurn.findNextMove(gameBoard, 1);
+            var bestCard = playerTurn.findNextMove(gameBoard, turn);
+            console.log(playerTurn.hand)
+            console.log(bestCard)
             playerTurn.removeCard(bestCard);
+            console.log(playerTurn.hand)
             gameBoard.addCard(bestCard);
             screen.playCard(bestCard, (handsList[turn].play_pos), handsList[turn].rotation);
             var element = gameBoard.remainingCards.find(element => element.sort_pos == bestCard.sort_pos);
-            
             var remainingCards = gameBoard.remainingCards;
            
             remainingCards.splice(remainingCards.indexOf(element), 1)
@@ -101,6 +141,7 @@ main = function() {
             
             if (gameBoard.board.length == 4) {
                 turn = gameBoard.trickWinner().player;
+                console.log(turn)
                 // resets board after final card has been drawn on screen
                 setTimeout(function() {
                     resetBoard()
@@ -132,9 +173,7 @@ main = function() {
             
                 return winningCard.player;
             }
-        }
-       
-    }
-    
+        } 
+    }  
 }
 

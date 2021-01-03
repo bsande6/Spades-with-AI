@@ -23,6 +23,7 @@ class GameBoard {
         for (var i = 0; i < length; i++) {
             this.board.pop()
         }
+        this.board.lastPlay = null;
     }
     setRemainingCards(cards) {
         this.remainingCards = cards
