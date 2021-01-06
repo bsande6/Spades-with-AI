@@ -10,6 +10,7 @@ class Deck {
     }
   }
 
+  // shuffles the deck
   shuffle() {
     var j = 0,
     temp = null
@@ -20,6 +21,7 @@ class Deck {
       this.cards[j] = temp
     }
   }
+  
   dealCards(players) {
     while (this.cards.length > 0) {
         for (var i = 0; i < players.length; i++) {

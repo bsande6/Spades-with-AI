@@ -19,14 +19,24 @@ class GameScreen {
             
           }, false);
         
-        //used to track mouse location
-        var mouse = {
-            x: undefined,
-            y: undefined
+        //used to track box position when user is prompted for another round
+        this.continueGame = {
+            x: this.canvas.width/2- 140,
+            y: this.canvas.height/2 + 95,
+            width: 300,
+            height: 35
         };
 
+        // tracks box position for when user is prompted to start a new game
+        this.newGame = {
+            x: this.canvas.width/2 - 140,
+            y: this.canvas.height/2 + 145,
+            width: 300,
+            height: 35
+        }
+
         this.rect = {
-            x: this.canvas.width/2 - 60,
+            x: this.canvas.width/2 - 1400,
             y: this.canvas.height/2-60,
             width: 120,
             height: 120
@@ -46,32 +56,26 @@ class GameScreen {
         rect.height && pos.y > rect.y
     }
 
+    // loops through players hand and finds and prints the associated image for the cards
     displayHand(player) {
-        // loops through players hand and call function to find associated image for the cards
         var hand = player.getHand();
-        console.log('yy')
-        var index;
-        var card_num = 0;
+        var card_num = 0.0
+        
         for (var card in hand) {
             var img = this.determineImage(hand[card]);
-            this.ctx.drawImage(img, window.innerWidth/2 + (card_num-hand.length/2)*20, window.innerHeight -140, 100, 140);
+            this.ctx.drawImage(img, window.innerWidth/2 + (card_num-1-hand.length/2)*20, window.innerHeight -140, 100, 140);
             card_num++;  
         }
     }
     clearHand(player) {
         var hand = player.getHand();
         var card_num = 0;
-        var hand_width = hand[0].width*(hand.length+1)-(20*hand.length)
-        for (var card in hand) {
-            var img = this.determineImage(hand[card]);
-            console.log('asf')
+        console.log(hand.length)
+        var hand_width =((hand.length)*20)+(CARD_WIDTH)
+        console.log(hand_width)
             // 1 is added to hand length to account for removed card
             this.removeImage(window.innerWidth/2 + (0-(hand.length+1)/2)*20, window.innerHeight - 140, hand_width, 140);
-            //this.removeImage(window.innerWidth/2 + (0-7)*20, window.innerHeight - 140, 20, 140);
-            card_num++;  
-
-        }
-        
+            card_num++; 
     }
 
     determineImage(card) {
@@ -175,22 +179,63 @@ class GameScreen {
     }
 
     removeImage(xpos, ypos, width, height) {
-        console.log('x')
-        this.ctx.clearRect(xpos,ypos, width, height)
+        this.ctx.clearRect(xpos-20,ypos, width+20, height)
     }
     playCard(card, pos, angle) {
         var img = this.determineImage(card)
-        console.log(angle)
+      
         this.ctx.save()
         this.ctx.translate(pos.x + card.width/2, pos.y + card.height/2)
         this.ctx.rotate(angle)
         this.ctx.translate(-pos.x - card.width/2, -pos.y - card.height/2)
-        console.log(img)
-        console.log(img.complete)
-        console.log(this.image.complete)
+        
         this.ctx.drawImage(img, pos.x, pos.y, card.width, card.height)
         this.ctx.restore();
+    }
+    /* Displays each players current tricks for the round
+     * Param: p1Points: int representing wins for player 1
+              p2Points: int representing wins for player 2, etc
+    */
+    displayScores(p1Points, p2Points, p3Points, p4Points) {
+        this.ctx.fillStyle = "black"
+        this.ctx.font = "bold 20pt arial";
+        this.ctx.textAlign = 'center';
+        this.ctx.clearRect(this.canvas.width/2 - this.canvas.width/3, this.canvas.height/2+ this.canvas.height/3, 100, -30);
+        this.ctx.clearRect(this.canvas.width/2- this.canvas.width/3 ,this.canvas.height/2 - this.canvas.height/3, 100, -30)
+        this.ctx.clearRect(this.canvas.width/2 + this.canvas.width/3, this.canvas.height/2 -  this.canvas.height/3, 100, -30)
+        this.ctx.clearRect(this.canvas.width/2 + this.canvas.width/3, this.canvas.height/2 + this.canvas.height/3, 100, -30)
+        this.ctx.fillText("Player 1: " + p1Points, this.canvas.width/2 - this.canvas.width/3, this.canvas.height/2+ this.canvas.height/3);
+        this.ctx.fillText("Player 2: " + p2Points, this.canvas.width/2- this.canvas.width/3 ,this.canvas.height/2 - this.canvas.height/3)
+        this.ctx.fillText("Player 3: " + p3Points, this.canvas.width/2 + this.canvas.width/3, this.canvas.height/2 -  this.canvas.height/3)
+        this.ctx.fillText("Player 4: " + p4Points, this.canvas.width/2 + this.canvas.width/3, this.canvas.height/2 + this.canvas.height/3)
+    }
+    // Displays the total scores accumulated after each round
+    displayTotalScores(p1TotalPoints, p2TotalPoints, p3TotalPoints, p4TotalPoints) {
+        this.ctx.clearRect(0,0, this.canvas.width, this.canvas.height)
+        this.ctx.textAlign = 'center'
+        this.ctx.fillStyle = "black"
+        this.ctx.font = "bold 20pt arial";
+        this.ctx.textAlign = 'center';
+        this.ctx.fillText("Player 1: " + p1TotalPoints, this.canvas.width/2, this.canvas.height/2 - 30);
+        this.ctx.fillText("Player 2: " + p2TotalPoints, this.canvas.width/2 ,this.canvas.height/2)
+        this.ctx.fillText("Player 3: " + p3TotalPoints, this.canvas.width/2, this.canvas.height/2 + 30)
+        this.ctx.fillText("Player 4: " + p4TotalPoints, this.canvas.width/2, this.canvas.height/2 + 60)
         
+    }
+    // prompts user to play another round
+    endGamePrompt() {
+        this.ctx.fillText('Continue with another round or start new game?', this.canvas.width/2, this.canvas.height/2 + 90)
+        this.ctx.fillStyle = 'white';
+        this.ctx.rect(this.continueGame.x, this.continueGame.y, this.continueGame.width, this.continueGame.height);
+        this.ctx.fill();
+        this.ctx.rect(this.newGame.x, this.newGame.y, this.newGame.width, this.newGame.height);
+        this.ctx.fill()
+        this.ctx.textAlign = 'center'
+        this.ctx.fillStyle = "black"
+        this.ctx.font = "bold 20pt arial";
+        this.ctx.textAlign = 'center';
+        this.ctx.fillText('Continue this game', this.canvas.width/2, this.canvas.height/2 + 120)
+        this.ctx.fillText('Start new game', this.canvas.width/2, this.canvas.height/2 + 170)      
     }
 }
  

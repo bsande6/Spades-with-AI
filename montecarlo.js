@@ -19,12 +19,11 @@ class Node {
         if (this.state.board.board.length == 0) {
             playerNo = playerNo -1;
         }
-        console.log(playerNo)
 
         for (let move of this.unexpandedMoves) {  
             var node = new Node(this, this.state.board , move, [], (playerNo + 1) % 4, this.state.board.remainingCards)
             node.state.board.addCard(move);
-            console.log(node.state.board)
+            
             this.children.set(count, { move: move, node: node})
             count++;
         }
@@ -112,14 +111,7 @@ class State {
     setState(board) {
       
         this.board = _.cloneDeep(board)
-        /*console.log(JSON.stringify(board.remainingCards));
-        this.board.
-        Object.assign
-        this.board.setBoard(board.board)
-        this.board.addCard("as")
-        console.log(this.board)
-        this.board.setLastPlay(board.setLastPlay)
-        console.log(JSON.stringify(board));*/
+        
       
     }
     setPlayerNo(playerNo) {
@@ -174,53 +166,49 @@ class MonteCarloTreeSearch {
         }
     }
     simulateRandomPlayout(node, rootNode, hand) {
-        //node.state.board.addCard(node.play)
-        //console.log(node.play)
+      
         var simHand = _.cloneDeep(hand)
         var tempBoard = _.cloneDeep(node.state.board)
         simHand.removeCard(node.play)
-        //var simHand = playableCards;
         var tricksWon = 0;
-        //let plays = _.cloneDeep(node.getAllLegalPlays(rootNode));
+
         let plays = _.cloneDeep(node.state.board.remainingCards);
        
         var turn = node.player;
-        console.log(node.state.board.board.length)
+      
         if (node.state.board.lastPlay != null) {
             turn = (node.state.board.lastPlay.player + 1) % 4
         }
         
         var currentPlayerPlays;
         
-        console.log(node.state.board)
-        console.log(turn)
+       
         // simulates a random game and records the number of tricks won
         while(plays.length > 0 || simHand.getHand().length > 0) {
-            
+           
             var play;
             if (turn % 4 == rootNode.player) {
-                console.log('a')
+               
                 currentPlayerPlays = simHand.getPlayableCards(node.state.board);
                 play = currentPlayerPlays[Math.floor(Math.random() * currentPlayerPlays.length)];
                 simHand.getHand().splice(simHand.getHand().indexOf(play), 1)
             } 
             else {
-                console.log('b')   
+               
                 play = plays[Math.floor(Math.random() * plays.length)]
                 plays.splice(plays.indexOf(play), 1)
                 
             } 
-            console.log(plays)
-            console.log(JSON.stringify(simHand.hand))
+           
             play.player = turn
             tempBoard.addCard(play)
             turn++;
             
-            if (node.state.board.board.length == 4) {
-                var winner = node.state.board.trickWinner();
-                node.state.board.clearBoard();
+            if (tempBoard.length == 4) {
+                var winner = tempBoard.trickWinner();
+                tempBoard.clearBoard();
                 if (isNaN(winner.player)) {
-                    winner.player = node.state.board.board.indexOf(winner)
+                    winner.player = tempBoard.indexOf(winner)
                 }
                 if (winner.player == rootNode.player) {
                     tricksWon = tricksWon + 1;

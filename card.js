@@ -1,10 +1,12 @@
 const CARD_WIDTH = 100;
+const CARD_HEIGHT = 140;
+
 class Card {
     constructor(value, suit) {
         this.value = value;
         this.suit = suit;
-        this.height = 140;
-        this.width = 100;
+        this.height = CARD_HEIGHT;
+        this.width = CARD_WIDTH;
         this.player;
         this.sort_pos = this.setSortPosition();
     }
