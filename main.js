@@ -166,7 +166,7 @@ main = function() {
             }
         }
             // checks for human turn  
-        if (playerTurn == 6) {        
+        if (playerTurn == 0) {        
             window.addEventListener('click', choosecard, false);    
         }
         else {
@@ -199,7 +199,6 @@ main = function() {
                         screen.displayTotalScores(h1.totalScore, h2.totalScore, h3.totalScore, h4.totalScore);
                        
                             for (var hand of handsList) {
-                                
                                 hand.tricksWon = 0;
                             }
                         screen.endGamePrompt()

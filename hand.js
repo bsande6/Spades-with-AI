@@ -22,8 +22,6 @@ class Hand {
     }
     sortHand() {
         var to_sort = [];
-        var suit_pos = 0;
-        var value = 0;
         
         for (var i = 0; i < this.hand.length; i++) {
             var card = this.hand[i];
@@ -49,7 +47,7 @@ class Hand {
         var i =low-1;
         for (var j = low; j <= high- 1; j++) {
         // If current element is smaller than the pivot
-            if (arr[j] < pivot) {
+           if (arr[j] < pivot) {
                 // increment index of smaller element
                 i++;
                 this.swap(arr, i ,j);
