@@ -53,6 +53,7 @@ main = function() {
      * Param: turn - int between 0 and number of players-1 which is used to determine the current move
     */
     function gameloop(turn) {
+        console.log('a')
         function nextRound(event) {
             var mousePos = screen.getMousePos(event);
             
@@ -76,7 +77,7 @@ main = function() {
         // ensures it will always be a correct turn for the number of players
         turn = turn % handsList.length
         var playerTurn = handsList[turn];
-
+        
        /* checks if human mouseclick chooses a card to play
         * param: event - leftmouseclick event
         */
@@ -165,8 +166,8 @@ main = function() {
                 }             
             }
         }
-            // checks for human turn  
-        if (playerTurn == 0) {        
+        // checks for human turn  
+        if (turn == 0) {     
             window.addEventListener('click', choosecard, false);    
         }
         else {
